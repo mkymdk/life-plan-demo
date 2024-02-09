@@ -110,30 +110,31 @@ if st.button("シミュレーションを実行"):
     st.write(f"最終的な貯金とローンの差額の標準偏差：{df['std'].iloc[-1]:.2f}万円")
 
     # 最適なライフプランを提案する
-    st.header("最適なライフプランの提案")
-    # 最適なライフプランを決めるための基準を入力
-    target = st.number_input("目標とする貯金とローンの差額（万円）", min_value=0, max_value=100000, value=10000, step=10)
-    probability = st.slider("目標を達成する確率（％）", min_value=0.0, max_value=100.0, value=90.0, step=0.1)
+    with st.form("my_form"):
+        st.header("最適なライフプランの提案")
+        # 最適なライフプランを決めるための基準を入力
+        target = st.number_input("目標とする貯金とローンの差額（万円）", min_value=0, max_value=100000, value=10000, step=10)
+        probability = st.slider("目標を達成する確率（％）", min_value=0.0, max_value=100.0, value=90.0, step=0.1)
 
-    # 最適なライフプランを計算ボタンを作成
-    if st.button("最適なライフプランを計算"):
-        # 目標を達成するために必要な年数を計算
-        # 目標を達成する確率に対応するパーセンタイルを求める
-        percentile = 100 - (100 - probability) / 2
-        # パーセンタイルに対応する貯金とローンの差額を求める
-        target_sim = np.percentile(df.drop("mean", axis=1), percentile, axis=1)
-        # 貯金とローンの差額が目標を超える最初の年数を求める
-        years_needed = np.argmax(target_sim >= target)
+        # 最適なライフプランを計算ボタンを作成
+        if st.form_submit_button("最適なライフプランを計算"):
+            # 目標を達成するために必要な年数を計算
+            # 目標を達成する確率に対応するパーセンタイルを求める
+            percentile = 100 - (100 - probability) / 2
+            # パーセンタイルに対応する貯金とローンの差額を求める
+            target_sim = np.percentile(df.drop("mean", axis=1), percentile, axis=1)
+            # 貯金とローンの差額が目標を超える最初の年数を求める
+            years_needed = np.argmax(target_sim >= target)
 
-        # 最適なライフプランを表示する
-        if years_needed == 0:
-            st.success(f"おめでとうございます！あなたはすでに目標を達成しています。")
-        elif years_needed < years:
-            st.success(f"あなたの目標は{years_needed}年後に達成できると予測されます。")
-        else:
-            st.warning(f"あなたの目標は{years}年以内には達成できないと予測されます。")
-            st.write(f"目標を達成するためには、以下の方法が考えられます。")
-            st.write(f"- 年収を増やす")
-            st.write(f"- 支出を減らす")
-            st.write(f"- 投資額や投資の利回りを増やす")
-            st.write(f"- ローン額やローンの利率を減らす")
+            # 最適なライフプランを表示する
+            if years_needed == 0:
+                st.success(f"おめでとうございます！あなたはすでに目標を達成しています。")
+            elif years_needed < years:
+                st.success(f"あなたの目標は{years_needed}年後に達成できると予測されます。")
+            else:
+                st.warning(f"あなたの目標は{years}年以内には達成できないと予測されます。")
+                st.write(f"目標を達成するためには、以下の方法が考えられます。")
+                st.write(f"- 年収を増やす")
+                st.write(f"- 支出を減らす")
+                st.write(f"- 投資額や投資の利回りを増やす")
+                st.write(f"- ローン額やローンの利率を減らす")
