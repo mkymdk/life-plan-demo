@@ -63,7 +63,7 @@ if st.button("シミュレーションを実行"):
     # シミュレーションの実行中のメッセージを表示
     st.write("シミュレーションを実行中です...")
     # シミュレーションの結果を格納するDataFrameを作成
-    df = pd.DataFrame()
+    df_list = []
     # シミュレーションの回数分繰り返す
     for i in range(trials):
         # 収入のシミュレーション
@@ -90,11 +90,15 @@ if st.button("シミュレーションを実行"):
         for j in range(years):
             loan_sim.append(loan_sim[-1] * (1 + interest_rate_sim[j]/100) - loan*0.1)
         # シミュレーションの結果をDataFrameに追加
-        df[f"trial_{i+1}"] = np.array(savings_sim) - np.array(loan_sim)
+        df_temp = pd.DataFrame(np.array(savings_sim) - np.array(loan_sim), columns=[f"trial_{i+1}"])
+        df_list.append(df_temp)
+
+    # すべてのDataFrameを一度に結合
+    df = pd.concat(df_list, axis=1)
 
     # シミュレーションの結果の平均と標準偏差を計算
     df["mean"] = df.mean(axis=1)
-    df["std"] = df.std(axis=1)
+    df["std"] = df.drop("mean", axis=1).std(axis=1)
 
     # シミュレーションの結果をプロットする
     fig = px.line(df, x=df.index, y="mean", error_y="std", labels={"index": "年数", "mean": "貯金とローンの差額（万円）"})
